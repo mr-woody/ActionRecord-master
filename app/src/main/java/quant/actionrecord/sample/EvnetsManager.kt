@@ -163,6 +163,6 @@ object EvnetsManager{
                 }
             }
         }
-        EventCollectsManager.get().addAction(eventItem)
+        EventCollectsManager.get().addAsyncAction(eventItem)
     }
 }
