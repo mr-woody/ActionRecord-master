@@ -26,6 +26,9 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        maven{
+            url 'http://192.168.29.8:8081/repository/credit-wallet/'
+        }
     }
 }
 

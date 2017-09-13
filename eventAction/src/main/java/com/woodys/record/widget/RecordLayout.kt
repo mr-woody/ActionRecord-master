@@ -53,14 +53,13 @@ class RecordLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : 
      * 设置控件点击包装器
      */
     private fun ensureViewClickListenerWrapper(findView: View, ev: MotionEvent) {
-        findView.setOnClickListener {  }
         if (findView.hasOnClickListeners()) {
-            val listenerInfo = RecordLayout.Companion.listenerInfoField.get(findView)
+            val listenerInfo = listenerInfoField.get(findView)
             if (null != listenerInfo ) {
                 val clickListenerField = listenerInfo::class.java.getDeclaredField("mOnClickListener")
                 clickListenerField.isAccessible=true
                 val clickListener = clickListenerField.get(listenerInfo) as? OnClickListener
-                if (null != clickListener&& clickListener !is RecordLayout.ViewClickListenerWrapper) {
+                if (null != clickListener&& clickListener !is ViewClickListenerWrapper) {
                     clickListenerField.set(listenerInfo, ViewClickListenerWrapper(clickListener,ev))
                     debugLog("set view click wrapper")
                 }
@@ -72,9 +71,9 @@ class RecordLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : 
      * 设置AdapterView控件点击包装器
      */
     private fun ensureAdapterViewClickListenerWrapper(findView: AdapterView<*>, ev: MotionEvent) {
-        val itemClickListener = RecordLayout.Companion.itemClickListenerField.get(findView) as? AdapterView.OnItemClickListener
-        if (null != itemClickListener&& itemClickListener !is RecordLayout.ListViewItemClickWrapper) {
-            RecordLayout.Companion.itemClickListenerField.set(findView, ListViewItemClickWrapper(itemClickListener,ev))
+        val itemClickListener = findView.onItemClickListener
+        if (null != itemClickListener&& itemClickListener !is ListViewItemClickWrapper) {
+            findView.onItemClickListener = ListViewItemClickWrapper(itemClickListener,ev)
             debugLog("set adapter view click wrapper")
         }
     }
