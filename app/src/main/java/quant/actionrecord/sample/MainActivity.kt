@@ -5,12 +5,11 @@ import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import android.widget.LinearLayout
 import android.widget.Toast
-import com.financial.quantgroup.v2.eventcollect.EvnetsManager
 import com.woodys.eventcollect.EventCollectsManager
 import kotlinx.android.synthetic.main.activity_main.*
 import com.woodys.record.model.ActionItem
-import com.woodys.record.model.Type
 import quant.actionrecord.sample.bus.subscribe
+import quant.actionrecord.sample.eventcollect.EvnetsManager
 
 class MainActivity : AppCompatActivity() {
 

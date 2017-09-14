@@ -1,4 +1,4 @@
-package com.financial.quantgroup.v2.eventcollect
+package quant.actionrecord.sample.eventcollect
 
 import android.util.Base64
 import android.util.Log
@@ -6,14 +6,15 @@ import android.view.MotionEvent
 import com.woodys.eventcollect.EventCollectsManager
 import com.woodys.eventcollect.callback.Action
 import com.woodys.eventcollect.database.table.temp.TempEventData
-import com.woodys.eventcollect.mouble.EventCollection
 import com.woodys.eventcollect.mouble.EventItem
-import com.woodys.eventcollect.mouble.UserEvent
-import com.woodys.eventcollect.mouble.event.ClickEvent
-import com.woodys.eventcollect.mouble.event.EnterPageEvent
-import com.woodys.eventcollect.mouble.event.LeavePageEvent
 import com.woodys.record.model.ActionItem
 import com.woodys.record.model.Type
+import cz.netlibrary.request
+import quant.actionrecord.sample.eventcollect.mouble.EventCollection
+import quant.actionrecord.sample.eventcollect.mouble.UserEvent
+import quant.actionrecord.sample.eventcollect.mouble.event.ClickEvent
+import quant.actionrecord.sample.eventcollect.mouble.event.EnterPageEvent
+import quant.actionrecord.sample.eventcollect.mouble.event.LeavePageEvent
 import quant.actionrecord.sample.utils.JsonUtils
 import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
@@ -63,12 +64,12 @@ object EvnetsManager{
      */
     fun getEventCollection(tempEventDatas:ArrayList<TempEventData>): EventCollection? {
         val eventData = if(null!=tempEventDatas && tempEventDatas.size>0) tempEventDatas[tempEventDatas.size - 1] else null
-        var eventCollection:EventCollection? = null
+        var eventCollection: EventCollection? = null
         if (null != eventData) {
             eventCollection = EventCollection()
             eventCollection.phoneNo = eventData.phoneNo
-            eventCollection.width = eventData.width.toString()
-            eventCollection.height = eventData.height.toString()
+            eventCollection.width = eventData.width
+            eventCollection.height = eventData.height
             eventCollection.appVersion = eventData.appVersion
             eventCollection.deviceId = eventData.deviceId
             eventCollection.mobilemodel = eventData.mobilemodel
@@ -92,20 +93,20 @@ object EvnetsManager{
     fun converter(eventData:TempEventData):UserEvent{
         var userEvent:UserEvent = UserEvent()
         userEvent.type = eventData.type
-        userEvent.page = eventData.page
-        userEvent.offsetTime =System.currentTimeMillis() - eventData.offsetTime
+        userEvent.page = eventData.clazz
+        userEvent.offsetTime =System.currentTimeMillis() - eventData.ct
         userEvent.extraInfo = when {
             "click".equals( eventData.type) ->  ClickEvent().apply {
                 x = eventData.x
                 y = eventData.y
-                identify = eventData.identify
+                identify = eventData.title
             }
             "enterPage".equals( eventData.type) -> EnterPageEvent().apply {
-                pageTitle = eventData.pageTitle
+                pageTitle = eventData.title
             }
             "leavePage".equals( eventData.type) ->  LeavePageEvent().apply {
-                pageTitle = eventData.pageTitle
-                standingTime = eventData.standingTime
+                pageTitle = eventData.title
+                standingTime = eventData.offsetTime
             }
             else -> null
         }
@@ -118,51 +119,30 @@ object EvnetsManager{
             latitude= "0.00"
             longitude= "0.00"
 
-            page = actionItem.clazzName
-            offsetTime = actionItem.ct
-
+            clazz = actionItem.clazzName
             when (actionItem.type){
                 Type.ACTIVITY_OPEN->{
                     type = "enterPage"
-                    extraInfo =com.woodys.eventcollect.mouble.event.EnterPageEvent().apply {
-                        pageTitle = actionItem.value
-                    }
-
+                    title = actionItem.value
                 }
                 Type.ACTIVITY_CLOSE->{
                     type = "leavePage"
-                    extraInfo =com.woodys.eventcollect.mouble.event.LeavePageEvent().apply {
-                        pageTitle = actionItem.value
-                        if(actionItem.arg is Long) {
-                            standingTime = actionItem.arg as Long
-                        }
+                    title = actionItem.value
+                    if(actionItem.arg is Long) {
+                        offsetTime = actionItem.arg as Long
                     }
                 }
-                Type.CLICK->{
+                Type.LIST_CLICK,Type.CLICK->{
                     type = "click"
-                    extraInfo = com.woodys.eventcollect.mouble.event.ClickEvent().apply {
-                        if(actionItem.arg is MotionEvent){
-                            val ev:MotionEvent = actionItem.arg as MotionEvent
-                            x = ev.x.toInt()
-                            y = ev.y.toInt()
-                        }
-                        identify = actionItem.value
-
-                    }
-                }
-                Type.LIST_CLICK->{
-                    type = "click"
-                    extraInfo = com.woodys.eventcollect.mouble.event.ClickEvent().apply {
-                        if(actionItem.arg is MotionEvent){
-                            val ev:MotionEvent = actionItem.arg as MotionEvent
-                            x = ev.x.toInt()
-                            y = ev.y.toInt()
-                        }
-                        identify = actionItem.value
+                    title = actionItem.value
+                    if(actionItem.arg is MotionEvent){
+                        val ev:MotionEvent = actionItem.arg as MotionEvent
+                        x = ev.x.toInt()
+                        y = ev.y.toInt()
                     }
                 }
             }
         }
-        EventCollectsManager.get().addAsyncAction(eventItem)
+        EventCollectsManager.get().addAction(eventItem)
     }
 }

@@ -29,7 +29,7 @@
 
         <provider
             android:name="com.woodys.eventcollect.database.provider.DbProvider"
-            android:authorities="quant.actionrecord.sample_collect_db"
+            android:authorities="quant.actionrecord.sample.collects"
             android:exported="true" />
     </application>
 

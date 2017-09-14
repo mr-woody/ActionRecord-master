@@ -1,7 +1,6 @@
 package quant.actionrecord.sample
 
 import android.app.Application
-import com.financial.quantgroup.v2.eventcollect.EvnetsManager
 import com.woodys.eventcollect.EventCollectsManager
 import com.woodys.eventcollect.database.table.temp.TempEventData
 
@@ -10,6 +9,7 @@ import com.woodys.record.model.ActionItem
 import com.woodys.record.model.Type
 import quant.actionrecord.sample.bus.RxBus
 import quant.actionrecord.sample.bus.subscribe
+import quant.actionrecord.sample.eventcollect.EvnetsManager
 import java.util.ArrayList
 
 /**
