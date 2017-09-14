@@ -11,6 +11,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import com.woodys.eventcollect.EventCollectsManager
+import com.woodys.eventcollect.callback.SendActionCallback
+import com.woodys.eventcollect.database.table.temp.TempEventData
 import com.woodys.record.callback.MyActivityLifecycleCallbacks
 import com.woodys.record.model.ActionItem
 import com.woodys.record.model.Type
@@ -20,6 +23,7 @@ import com.woodys.record.receive.HomeEventReceiver
 import com.woodys.record.widget.RecordLayout
 import xyqb.library.config.Config
 import xyqb.library.config.XmlReaderBase
+import java.util.ArrayList
 import java.util.concurrent.Executors
 
 
@@ -45,9 +49,15 @@ object ActionRecordManager {
         get() = if(null!= actionConfig.folderPath) actionConfig.folderPath else context.cacheDir.absolutePath
 
 
-    fun init(application: Application, closure: ActionConfig.()->Unit) {
+    fun init(application: Application, closure: ActionConfig.()->Unit): ActionRecordManager {
         application.registerActivityLifecycleCallbacks(MyActivityLifecycleCallbacks())
+
+
         context =application.applicationContext
+
+        //用户行为信息收集
+        EventCollectsManager.get().init(application)
+
         actionConfig = ActionConfig().apply(closure)
         //初始化出配置
         val activityReader = ActivityReader()
@@ -56,7 +66,10 @@ object ActionRecordManager {
             activityItems += readConfig(activityReader)
             viewItems += readConfig(viewReader)
         }
+        return this
     }
+
+
 
     /**
      * 读取xml配置

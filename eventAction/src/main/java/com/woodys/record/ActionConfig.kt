@@ -1,5 +1,7 @@
 package com.woodys.record
 
+import com.woodys.eventcollect.EventCollectsManager
+import com.woodys.eventcollect.callback.Action
 import com.woodys.record.model.ActionItem
 
 /**
@@ -14,5 +16,9 @@ class ActionConfig {
 
     fun actionCallback(actionCallback:(ActionItem)->Unit){
         this.actionCallback=actionCallback
+    }
+
+    fun sendActionCallback(actionCallback:(Any, Action<Any, Any>)->Unit){
+        EventCollectsManager.get().setSendActionCallback(actionCallback)
     }
 }
