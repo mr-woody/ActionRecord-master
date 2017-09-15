@@ -45,7 +45,7 @@ object Recorder {
 
     fun writeActionItem(context: Context, item: RecordItem) {
         if (!Recorder.hasPermission(context, "android.permission.WRITE_EXTERNAL_STORAGE")) {
-            throw RuntimeException("not configuration uses-permission android.permission.WRITE_EXTERNAL_STORAGE")
+            Exception("not configuration uses-permission android.permission.WRITE_EXTERNAL_STORAGE").printStackTrace()
         } else {
             val file = File(ActionRecordManager.cacheFolderPath, item.id)
             var fileWriter: FileWriter? = null
