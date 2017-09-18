@@ -42,6 +42,9 @@ object ActionRecordManager {
     var debug:Boolean=false
         get() = actionConfig.debug
 
+    var enable:Boolean=true
+        get() = actionConfig.enable
+
     var actionCallback:((ActionItem)->Unit)?=null
         get() = actionConfig.actionCallback
 
@@ -55,16 +58,19 @@ object ActionRecordManager {
 
         context =application.applicationContext
 
-        //用户行为信息收集
-        EventCollectsManager.get().init(application)
-
         actionConfig = ActionConfig().apply(closure)
+
+        //用户行为信息收集
+        EventCollectsManager.get().init(application).setEnable(enable)
+
         //初始化出配置
-        val activityReader = ActivityReader()
-        val viewReader = ViewReader()
-        Executors.newSingleThreadExecutor().execute {
-            activityItems += readConfig(activityReader)
-            viewItems += readConfig(viewReader)
+        if(enable) {
+            val activityReader = ActivityReader()
+            val viewReader = ViewReader()
+            Executors.newSingleThreadExecutor().execute {
+                activityItems += readConfig(activityReader)
+                viewItems += readConfig(viewReader)
+            }
         }
         return this
     }
@@ -90,45 +96,49 @@ object ActionRecordManager {
     operator fun get(key:String)= viewItems[key]
 
     fun onActivityCreated(activity: Activity?) {
-        val activity=activity?:return
-        val name = activity::class.java.name
-        val windowId=activity.window.decorView.hashCode()
-        //检测是否为主界面
-        val launchActivityName = getLaunchActivityName(activity)
-        if (name == launchActivityName) {
-            openActivities.clear()
-            //注册home键广播事件
-            homeEventReceiver = HomeEventReceiver()
-            activity.registerReceiver(homeEventReceiver, IntentFilter(Intent. ACTION_CLOSE_SYSTEM_DIALOGS))
-            //记录打开时间
-            startTime = SystemClock.uptimeMillis()
-            //记录新的事件
-            Recorder.newAction()
-            Recorder.addAction(ActionItem(windowId, Type.APP_OPEN, name, activityItems[name]))
+        if(enable) {
+            val activity = activity ?: return
+            val name = activity::class.java.name
+            val windowId = activity.window.decorView.hashCode()
+            //检测是否为主界面
+            val launchActivityName = getLaunchActivityName(activity)
+            if (name == launchActivityName) {
+                openActivities.clear()
+                //注册home键广播事件
+                homeEventReceiver = HomeEventReceiver()
+                activity.registerReceiver(homeEventReceiver, IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
+                //记录打开时间
+                startTime = SystemClock.uptimeMillis()
+                //记录新的事件
+                Recorder.newAction()
+                Recorder.addAction(ActionItem(windowId, Type.APP_OPEN, name, activityItems[name]))
+            }
+            //注入控件
+            injectLayout(activity)
+            //加入当前打开界面的根控件的hash值,以确定界面与界面之间的唯一标记
+            Recorder.addAction(ActionItem(windowId, Type.ACTIVITY_OPEN, name, activityItems[name]))
+            openActivities.put(windowId, SystemClock.uptimeMillis())
+            debugLog("打开界面:${activityItems[name]} windowToken:$windowId")
         }
-        //注入控件
-        injectLayout(activity)
-        //加入当前打开界面的根控件的hash值,以确定界面与界面之间的唯一标记
-        Recorder.addAction(ActionItem(windowId, Type.ACTIVITY_OPEN, name, activityItems[name]))
-        openActivities.put(windowId, SystemClock.uptimeMillis())
-        debugLog("打开界面:${activityItems[name]} windowToken:$windowId")
     }
 
     fun onActivityDestroyed(activity: Activity?) {
-        val activity=activity?:return
-        val name = activity::class.java.name
-        val windowId=activity.window.decorView.hashCode()
-        val activityCreateTime = openActivities[windowId]?:-1
-        val time = SystemClock.uptimeMillis() - activityCreateTime
-        Recorder.addAction(ActionItem(windowId, Type.ACTIVITY_CLOSE, name, activityItems[name], time))
-        debugLog("关闭界面:${activityItems[name]} 打开时间:$time")
-        //检测主信息
-        val launchActivityName = getLaunchActivityName(activity)
-        if (name == launchActivityName) {
-            Recorder.addAction(ActionItem(windowId, Type.APP_CLOSE, name, activityItems[name], SystemClock.uptimeMillis() - startTime))
-            debugLog(("应用关闭时间:${SystemClock.uptimeMillis()- startTime}"))
-            activity.unregisterReceiver(homeEventReceiver)
-            Recorder.exit()
+        if(enable) {
+            val activity = activity ?: return
+            val name = activity::class.java.name
+            val windowId = activity.window.decorView.hashCode()
+            val activityCreateTime = openActivities[windowId] ?: -1
+            val time = SystemClock.uptimeMillis() - activityCreateTime
+            Recorder.addAction(ActionItem(windowId, Type.ACTIVITY_CLOSE, name, activityItems[name], time))
+            debugLog("关闭界面:${activityItems[name]} 打开时间:$time")
+            //检测主信息
+            val launchActivityName = getLaunchActivityName(activity)
+            if (name == launchActivityName) {
+                Recorder.addAction(ActionItem(windowId, Type.APP_CLOSE, name, activityItems[name], SystemClock.uptimeMillis() - startTime))
+                debugLog(("应用关闭时间:${SystemClock.uptimeMillis() - startTime}"))
+                activity.unregisterReceiver(homeEventReceiver)
+                Recorder.exit()
+            }
         }
     }
 

@@ -29,6 +29,23 @@ def pomConfig = {
     }
 }
 
+install {
+    repositories.mavenInstaller {
+        // This generates POM.xml with proper parameters
+        pom {
+            project {
+                packaging POM_PACKAGING
+                // Add your description here
+                name POM_NAME  //项目描述
+                url POM_URL
+                version VERSION_NAME
+                pomConfig
+            }
+        }
+    }
+}
+
+
 // Create the publication with the pom configuration:
 publishing {
     publications {
@@ -36,7 +53,7 @@ publishing {
             groupId GROUP
             version VERSION_NAME
             artifactId POM_ARTIFACT_ID
-            artifact "${project.buildDir}/outputs/aar/${project.name}-release.aar"
+            //artifact "${project.buildDir}/outputs/aar/${project.name}-release.aar"
             artifact androidJavadocsJar
             artifact androidSourcesJar
 
@@ -70,6 +87,7 @@ properties.load(project.rootProject.file('local.properties').newDataInputStream(
 bintray {
     user = properties.getProperty("bintray.user")
     key = properties.getProperty("bintray.apikey")
+    configurations = ['archives']
     publications = ['mavenJava']
     dryRun = false
     publish = true

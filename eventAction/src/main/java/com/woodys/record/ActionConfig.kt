@@ -11,6 +11,7 @@ import com.woodys.record.model.ActionItem
 class ActionConfig {
     var record = false
     var debug=false
+    var enable=true
     var folderPath:String?=null
     internal var actionCallback:((ActionItem)->Unit)?=null
 

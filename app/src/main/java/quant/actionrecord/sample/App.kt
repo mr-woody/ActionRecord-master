@@ -19,6 +19,7 @@ class App : Application() {
         super.onCreate()
         ActionRecordManager.init(this){
             debug=true
+            enable=false
             record=true
             actionCallback({
                 RxBus.post(it)
