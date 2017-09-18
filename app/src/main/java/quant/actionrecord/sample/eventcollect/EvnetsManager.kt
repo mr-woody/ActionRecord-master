@@ -33,7 +33,9 @@ object EvnetsManager{
      * 用户行为统计
      */
     fun requestUserEvent(tempEventDatas:ArrayList<TempEventData>, retryCount:Int, action: Action<Any, Any>) {
+        val nowdatass = JsonUtils.toJson(tempEventDatas)
         val eventCollection= getEventCollection(tempEventDatas) ?: return
+        Log.e(TAG,eventCollection?.toString())
         Observable.create(Observable.OnSubscribe<String> { subscriber ->
             try {
                 val nowdata = JsonUtils.toJson(eventCollection)

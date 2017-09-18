@@ -36,7 +36,6 @@ class MainActivity : AppCompatActivity() {
             }*/
 
             content.append("$it\n")
-            EvnetsManager.addAction(it)
         }
 
         //subscribe(ActionItem::class.java){ content.append("$it\n") }
