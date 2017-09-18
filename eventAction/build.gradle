@@ -1,9 +1,6 @@
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
-apply plugin: 'com.github.dcendents.android-maven'
-apply plugin: 'com.jfrog.bintray'
-
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
@@ -37,6 +34,8 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 }
 
-apply from: rootProject.file('gradle/android-artifacts.gradle')
-apply from: rootProject.file('gradle/gradle-jcenter-push.gradle')
+apply from: rootProject.file('gradle/bintrayUpload.gradle')
+
+//apply from: rootProject.file('gradle/android-artifacts.gradle')
+//apply from: rootProject.file('gradle/gradle-jcenter-push.gradle')
 

@@ -15,8 +15,9 @@ buildscript {
         classpath 'quant.record.plugin:recordplugin:1.0.5'
 
         //添加上传到公共的JCenter仓库所需插件
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
-        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
+        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5' //用于打包Maven所需文件
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3' //用于上传Maven生成的文件到Bintray
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
         //kotlin
@@ -31,8 +32,8 @@ allprojects {
         maven{
             url 'http://192.168.29.8:8081/repository/credit-wallet/'
         }
-        maven {
-            url  "https://dl.bintray.com/woodys/maven/"
+        maven{
+            url 'https://dl.bintray.com/woodys/maven/'
         }
         mavenCentral()
     }

@@ -3,8 +3,6 @@ package com.woodys.record
 import android.app.Activity
 import android.app.Application
 import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.os.SystemClock
 import android.util.SparseArray
 import android.view.MotionEvent
@@ -12,18 +10,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import com.woodys.eventcollect.EventCollectsManager
-import com.woodys.eventcollect.callback.SendActionCallback
-import com.woodys.eventcollect.database.table.temp.TempEventData
 import com.woodys.record.callback.MyActivityLifecycleCallbacks
 import com.woodys.record.model.ActionItem
 import com.woodys.record.model.Type
 import com.woodys.record.prefs.ActivityReader
 import com.woodys.record.prefs.ViewReader
-import com.woodys.record.receive.HomeEventReceiver
 import com.woodys.record.widget.RecordLayout
 import xyqb.library.config.Config
 import xyqb.library.config.XmlReaderBase
-import java.util.ArrayList
 import java.util.concurrent.Executors
 
 
@@ -36,7 +30,6 @@ object ActionRecordManager {
     private val activityItems= mutableMapOf<String,String?>()
     private val viewItems= mutableMapOf<String,String?>()
     private val openActivities= SparseArray<Long>()
-    private var homeEventReceiver: HomeEventReceiver? = null
     private var startTime:Long=0L
     lateinit var context: Context
     var debug:Boolean=false
@@ -104,9 +97,6 @@ object ActionRecordManager {
             val launchActivityName = getLaunchActivityName(activity)
             if (name == launchActivityName) {
                 openActivities.clear()
-                //注册home键广播事件
-                homeEventReceiver = HomeEventReceiver()
-                activity.registerReceiver(homeEventReceiver, IntentFilter(Intent.ACTION_CLOSE_SYSTEM_DIALOGS))
                 //记录打开时间
                 startTime = SystemClock.uptimeMillis()
                 //记录新的事件
@@ -136,7 +126,6 @@ object ActionRecordManager {
             if (name == launchActivityName) {
                 Recorder.addAction(ActionItem(windowId, Type.APP_CLOSE, name, activityItems[name], SystemClock.uptimeMillis() - startTime))
                 debugLog(("应用关闭时间:${SystemClock.uptimeMillis() - startTime}"))
-                activity.unregisterReceiver(homeEventReceiver)
                 Recorder.exit()
             }
         }
