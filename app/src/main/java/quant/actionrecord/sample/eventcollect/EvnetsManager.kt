@@ -53,7 +53,7 @@ object EvnetsManager{
             }
         }).observeOn(AndroidSchedulers.mainThread()).subscribeOn(Schedulers.io()).subscribe({ value ->
             Thread.sleep(1*1000)
-            action.call(true)
+            action.call(false)
             Log.e(TAG,value)
         }) { e -> e.printStackTrace() }
 

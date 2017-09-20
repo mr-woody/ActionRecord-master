@@ -34,10 +34,5 @@ dependencies {
     compile 'io.reactivex:rxandroid:1.1.0'
     compile 'com.cz.netlibrary:net-library:1.0.0'
     compile 'com.google.code.gson:gson:2.3.1'
-
-    compile 'com.woodys.record:eventAction:1.0.4'
-
-    //compile 'com.woodys.record:record:1.0.3'
-    //compile 'com.woodys.eventcollect:eventcollect:1.1.1'
-    //compile project(':eventAction')
+    compile project(':eventAction')
 }

@@ -109,6 +109,7 @@ bintray {
         issueTrackerUrl = ISSUE_URL
         vcsUrl = GIT_URL
         licenses = ['Apache-2.0']
+        labels = ['android', 'aar']
         version {
             name = VERSION_NAME
             vcsTag = VERSION_NAME

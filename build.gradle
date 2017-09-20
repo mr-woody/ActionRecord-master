@@ -8,6 +8,7 @@ buildscript {
         maven {
             url  "https://dl.bintray.com/cz/maven"
         }
+        mavenCentral()
     }
 
     dependencies {
