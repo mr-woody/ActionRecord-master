@@ -181,7 +181,7 @@ object ActionRecordManager {
         val windowId=parent.rootView.hashCode()
         val contentDescription=getViewData(v,parent,position)
         if(!TextUtils.isEmpty(contentDescription)) {
-            Recorder.addAction(ActionItem(windowId, Type.LIST_CLICK, v::class.java.name, contentDescription + "_" + position, ev))
+            Recorder.addAction(ActionItem(windowId, Type.LIST_CLICK, v::class.java.name, contentDescription, ev))
         }
         debugLog("id:$windowId 列表点击:$contentDescription 位置:$position")
     }
