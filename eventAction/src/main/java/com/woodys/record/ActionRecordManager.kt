@@ -4,11 +4,14 @@ import android.app.Activity
 import android.app.Application
 import android.content.Context
 import android.os.SystemClock
+import android.text.TextUtils
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.Button
+import android.widget.TextView
 import com.woodys.eventcollect.EventCollectsManager
 import com.woodys.record.callback.MyActivityLifecycleCallbacks
 import com.woodys.record.model.ActionItem
@@ -40,6 +43,9 @@ object ActionRecordManager {
 
     var actionCallback:((ActionItem)->Unit)?=null
         get() = actionConfig.actionCallback
+
+    var convertDataCallback:((v: View, parent: AdapterView<*>?)->String)?=null
+        get() = actionConfig.convertDataCallback
 
     var cacheFolderPath:String?=null
         get() = if(null!= actionConfig.folderPath) actionConfig.folderPath else context.cacheDir.absolutePath
@@ -161,23 +167,45 @@ object ActionRecordManager {
 
     fun onViewClick(v: View, ev: MotionEvent){
         val windowId=v.rootView.hashCode()
-        val contentDescription=v.contentDescription as? String
+        val contentDescription=getViewData(v,null,-1)
         if(View.NO_ID!=v.id){
-            val entryName = get(v.resources.getResourceEntryName(v.id))
-            Recorder.addAction(ActionItem(windowId, Type.CLICK, v::class.java.name, entryName ?: contentDescription, ev))
-            debugLog("id:$windowId 点击:${entryName?:contentDescription}")
+            if (!TextUtils.isEmpty(contentDescription)) Recorder.addAction(ActionItem(windowId, Type.CLICK, v::class.java.name, contentDescription, ev))
+            debugLog("id:$windowId 点击:$contentDescription")
         } else {
-            Recorder.addAction(ActionItem(windowId, Type.CLICK, v::class.java.name, contentDescription ?: "#", ev))
+            if (!TextUtils.isEmpty(contentDescription)) Recorder.addAction(ActionItem(windowId, Type.CLICK, v::class.java.name, contentDescription, ev))
             debugLog("id:$windowId 点击控件无id!")
         }
     }
 
     fun onItemClick(parent: AdapterView<*>, v: View, position:Int, id:Long, ev: MotionEvent){
         val windowId=parent.rootView.hashCode()
-        val contentDescription=v.contentDescription as? String
-        val entryName = get(v.resources.getResourceEntryName(parent.id))
-        Recorder.addAction(ActionItem(windowId, Type.LIST_CLICK, v::class.java.name, (entryName ?: contentDescription) +"_"+ position, ev))
+        val contentDescription=getViewData(v,parent,position)
+        if(!TextUtils.isEmpty(contentDescription)) {
+            Recorder.addAction(ActionItem(windowId, Type.LIST_CLICK, v::class.java.name, contentDescription + "_" + position, ev))
+        }
         debugLog("id:$windowId 列表点击:$contentDescription 位置:$position")
+    }
+
+    fun getViewData(v: View,parent: AdapterView<*>?, position:Int):String?{
+
+        var entryName = if (View.NO_ID != v.id) get(v.resources.getResourceEntryName(v.id)) else null
+        if (TextUtils.isEmpty(entryName)) {
+            entryName = convertDataCallback?.invoke(v, parent)
+        }
+        if (TextUtils.isEmpty(entryName)) {
+            entryName=v.contentDescription as? String
+        }
+
+        var contentDescription:String?=null
+        if (null != parent) {
+            contentDescription = get(v.resources.getResourceEntryName(parent.id))
+        }
+        if(!TextUtils.isEmpty(contentDescription)){
+            contentDescription = if(position>-1) (contentDescription + "_" + (if(!TextUtils.isEmpty(entryName)) entryName + "_" else "") +position) else contentDescription + (if(!TextUtils.isEmpty(entryName))  "_"+entryName else "")
+        }else if(!TextUtils.isEmpty(entryName)){
+            contentDescription = if(position>-1) (entryName + "_" + position) else entryName
+        }
+        return contentDescription
     }
 
 

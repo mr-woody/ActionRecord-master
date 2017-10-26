@@ -1,6 +1,7 @@
 package quant.actionrecord.sample
 
 import android.app.Application
+import android.widget.TextView
 import com.woodys.eventcollect.database.table.temp.TempEventData
 
 import com.woodys.record.ActionRecordManager
@@ -27,6 +28,12 @@ class App : Application() {
                     Type.ACTIVITY_OPEN, Type.CLICK, Type.LIST_CLICK, Type.ACTIVITY_CLOSE -> EvnetsManager.addAction(it)
                 }
             })
+            convertDataCallback { v, _ ->
+                when(v){
+                    is TextView-> v.text.toString()
+                    else-> ""
+                }
+            }
             sendActionCallback({ items, action ->
                 EvnetsManager.requestUserEvent(items as ArrayList<TempEventData>, 1,action)
             })
