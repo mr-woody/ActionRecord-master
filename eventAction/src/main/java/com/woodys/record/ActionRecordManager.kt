@@ -21,6 +21,7 @@ import com.woodys.record.prefs.ViewReader
 import com.woodys.record.widget.RecordLayout
 import xyqb.library.config.Config
 import xyqb.library.config.XmlReaderBase
+import java.lang.Exception
 import java.util.concurrent.Executors
 
 
@@ -187,8 +188,7 @@ object ActionRecordManager {
     }
 
     fun getViewData(v: View,parent: AdapterView<*>?, position:Int):String?{
-
-        var entryName = if (View.NO_ID != v.id) get(v.resources.getResourceEntryName(v.id)) else null
+        var entryName = if (View.NO_ID != v.id) try{ get(v.resources.getResourceEntryName(v.id)) }catch (e:Exception){ null }  else null
         if (TextUtils.isEmpty(entryName)) {
             entryName = convertDataCallback?.invoke(v, parent)
         }
