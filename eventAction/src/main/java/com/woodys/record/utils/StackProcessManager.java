@@ -46,7 +46,7 @@ public class StackProcessManager {
             }
         } else {
             List<ActivityManager.RunningTaskInfo> taskInfo = am.getRunningTasks(1);
-            if (null != taskInfo) {
+            if (null != taskInfo && taskInfo.size()>0) {
                 ActivityManager.RunningTaskInfo runningTaskInfo = taskInfo.get(0);
                 if(null != runningTaskInfo) {
                     ComponentName componentInfo = taskInfo.get(0).topActivity;
