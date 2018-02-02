@@ -49,7 +49,7 @@ public class StackProcessManager {
             if (null != taskInfo && taskInfo.size()>0) {
                 ActivityManager.RunningTaskInfo runningTaskInfo = taskInfo.get(0);
                 if(null != runningTaskInfo) {
-                    ComponentName componentInfo = taskInfo.get(0).topActivity;
+                    ComponentName componentInfo = runningTaskInfo.topActivity;
                     if (null != componentInfo && componentInfo.getPackageName().equals(context.getPackageName())) {
                         isInBackground = false;
                     }
