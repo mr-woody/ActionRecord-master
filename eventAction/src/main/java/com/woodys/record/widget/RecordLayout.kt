@@ -15,10 +15,8 @@ import java.lang.reflect.Field
 class RecordLayout(context: Context, attrs: AttributeSet?, defStyleAttr: Int) : FrameLayout(context,attrs,defStyleAttr) {
     companion object{
         val listenerInfoField: Field = View::class.java.getDeclaredField("mListenerInfo")
-        val itemClickListenerField: Field = AdapterView::class.java.getDeclaredField("mOnItemClickListener")
         init {
             RecordLayout.Companion.listenerInfoField.isAccessible=true
-            RecordLayout.Companion.itemClickListenerField.isAccessible=true
         }
     }
     private var itemClickListener:((AdapterView<*>, View, Int, Long, MotionEvent)->Unit)?=null
